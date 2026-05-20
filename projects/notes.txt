@@ -1,0 +1,3 @@
+This is my third attempt at writing a bash script in nano today and I am doing really great.
+Day 4 - learning to read files, grep and pipes. 
+grep is used to search through files 

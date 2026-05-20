@@ -1,0 +1,79 @@
+This is my cloud engineering notes file. 
+
+
+=== Day 14 - Cron + Logging ===
+- Log file opened with "a" (append) mode — never overwrites history
+- Cron needs full paths — scripts that work in terminal can fail in cron without them
+- 0 * * * * = top of every hour
+- 2>&1 redirects stderr to stdout — captures errors in the log too
+- tail -f watches a file update live — useful for monitoring logs
+- Two cron jobs now running: s3-backup.sh (2am daily) + health_check.py (hourly)
+
+
+=== Day 13 - Health Check Automation Tool ===
+- warnings.filterwarnings("ignore") suppresses boto3 Python 3.9 warning
+- Functions keep code clean — one job per function
+- Constants at the top (CPU_WARN, CPU_CRIT) make thresholds easy to change
+- describe_instance_status() gives the 2/2 checks you see in the console
+- status_label() reusable for any metric — not just CPU
+- chmod +x makes a Python script run like a binary
+
+
+=== Day 12 - boto3 Basics ===
+- boto3 1.42.97 installed via pip3 (dnf install python3-pip first)
+- Script queried S3, EC2, and CloudWatch in one run
+- describe_instances() returns ALL instances — running and stopped
+- CloudWatch CPU sitting at ~0.4% idle — healthy baseline
+- PythonDeprecationWarning: boto3 dropping Python 3.9 support — not urgent
+
+
+=== Day 11 - Python Basics ===
+- Variables: name = "value" (no $ needed when assigning)
+- f-strings: f"Hello {name}" - cleaner than Bash string building
+- Lists: aws_services = ["EC2", "S3"] - like Bash arrays but better
+- Dicts: {"key": "value"} - store related data together (like EC2 info)
+- Functions: def name(params): with indentation (no { } needed)
+- Indentation is not optional in Python — it defines code blocks
+- python3 script.py to run, python3 for interactive shell
+
+Day 10
+Set up cron job — s3-backup.sh runs daily at 2am automatically.
+Wrote ec2-monitor.sh — pushes custom metrics to CloudWatch.
+Pushed all scripts to GitHub: github.com/legendonthisone/cloud-engineering-portfolio
+Week 2 complete.
+
+Day 9
+Wrote S3 backup script — Portfolio Script 2.
+Learned: tee logging, exit codes $?, /dev/null, aws s3 cp --recursive.
+Created S3 bucket for backups.
+
+Day 8
+Learned functions and script structure.
+Rewrote health-check.sh using functions — clean, readable, professional.
+Created lib-functions.sh — shared logging functions for future scripts.
+
+Day 7
+Learned if/else conditionals and for/while loops.
+Script now warns on high disk, low memory, stopped services.
+
+Day 6
+Wrote my first Bash script - server health check.
+Learned shebang, echo, variables, command substitution $()
+
+Day 5
+Managed processes, services and configured the AWS CLI
+
+Day 4
+Read logs, searched with grep, chained commands with pipes.
+
+Day 3
+Managed permissions, sudo and installed software
+
+Day 2
+Navigated the Linux file system confidently
+
+Day 1
+Connected to a real server in AWS from my laptop
+
+
+
