@@ -1,0 +1,16 @@
+# Terraform state - may contain sensitive data, NEVER commit
+*.tfstate
+*.tfstate.*
+
+# Terraform working directory - large provider binaries
+.terraform/
+
+# Crash logs
+crash.log
+crash.*.log
+
+# Sensitive variable files
+*.tfvars
+*.tfvars.json
+
+# NOTE: .terraform.lock.hcl is intentionally NOT ignored - it must be committed
