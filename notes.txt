@@ -1,5 +1,89 @@
 This is my cloud engineering notes file. 
 
+=== Day 27 - Terraform Remote State (S3 + Native Locking) ===
+- Remote backend stores state in S3 - durable, versioned, survives instance loss
+- use_lockfile = true = native S3 locking via conditional writes (NO DynamoDB)
+- dynamodb_table is DEPRECATED in Terraform 1.11+ - don't use it
+- terraform init -reconfigure = re-init after changing the BACKEND block
+- .tflock file created at start of operation, DELETED AUTOMATICALLY at the end
+- Versioning = history/rollback. Locking = preventing concurrent access. Separate things.
+- State bucket: legend-tf-state-2026 (versioned, AES256, public access blocked)
+
+=== Day 26 - Deploy Real Infrastructure with Terraform ===
+- Built VPC + IGW + subnet + route table + SG + EC2 entirely in code - 7 resources
+- Terraform builds in dependency order (VPC first, EC2 last) via implicit dependency
+- map_public_ip_on_launch = true = auto-assign public IP to instances in subnet
+- data "aws_ami" block queries latest AMI dynamically - better than hardcoding an ID
+- protocol = "-1" in a SG rule = all protocols (allow everything)
+- user_data = script that runs ONCE on first boot - installed nginx here
+- ASCII only in echo statements - em dash broke the HTML encoding
+
+=== Day 25 - Terraform Modules ===
+- Module = reusable folder of .tf files, called from root via module {} block
+- source argument tells Terraform where the module code lives
+- Run terraform init again after adding a module so it registers
+- Module outputs pass back to root via module.<name>.<output>
+- Conditional: var.x ? "Enabled" : "Suspended" - ternary in HCL
+
+=== Day 24 - Variables, Outputs, Data Sources ===
+- variable {} declares inputs (description, type, default) - lives in variables.tf
+- Reference a variable with var.<name>
+- output {} prints useful values after apply - lives in outputs.tf
+- terraform output <name> prints a single value without running apply
+- data {} reads existing infra Terraform didn't create; resource {} creates new
+
+=== Day 23 - Terraform Core Concepts ===
+- serial in tfstate increments each time state changes
+- (known after apply) = value only exists once AWS creates the resource
+- Implicit dependency = one resource references another's attribute (.id)
+- ~ = update in place, + = create, - = destroy, -/+ = replace
+- Idempotency = only changes what needs changing - safe to run repeatedly
+
+=== Day 22 - Terraform Introduction ===
+- IaC = describe infra in files, deploy automatically - repeatable, version-controlled
+- terraform init = download providers, set up working dir
+- plan = preview changes, apply = actually build (prompts yes)
+- terraform.tfstate = Terraform's record of what it built - never edit by hand
+- 3 main blocks: provider, resource, data
+
+=== Day 21 - Week 4 Review + GitHub Push ===
+- Networking README added to portfolio
+- LinkedIn post published (networking + Terraform intro)
+
+=== Day 20 - Built Custom VPC From Scratch ===
+- legend-vpc (10.0.0.0/16) + IGW + public subnet + route table + SG + test EC2
+- Public subnet = route table has 0.0.0.0/0 -> IGW
+
+=== Day 19 - Security Groups + NACLs ===
+- SG = instance-level, stateful, allow-only. Return traffic auto-allowed.
+- NACL = subnet-level, stateless, allow + deny, evaluated in number order
+- Stateless = must write BOTH inbound and outbound rules
+- Ephemeral ports 1024-65535 = response ports, must allow in NACL outbound
+
+=== Day 18 - Internet Gateway + Route Tables ===
+- IGW = one per VPC, the door to the public internet
+- Route table 0.0.0.0/0 -> IGW = makes a subnet public
+- 0.0.0.0/0 = catch-all, matches anything not covered by a more specific rule
+
+=== Day 17 - Subnets ===
+- Public subnet has 0.0.0.0/0 -> IGW route; private subnet does not
+- Subnets live in one AZ
+- AWS reserves 5 IPs per subnet: .0 network, .1 router, .2 DNS, .3 future, .255 broadcast
+
+=== Day 16 - VPC Fundamentals ===
+- VPC = isolated private network in AWS
+- CIDR /16 = 65,536 IPs, /24 = 256 (251 usable)
+- Default VPC = 172.31.0.0/16, all public. Custom VPC = full control.
+
+
+
+=== Day 15 - Week 2 Review & GitHub Push ===
+- git add <folder> stages an entire folder at once
+- README.md in each folder explains the work to interviewers
+- Portfolio now has: Bash scripts (Week 1) + Python automation (Week 2)
+- Two cron jobs running: s3-backup.sh (2am) + health_check.py (hourly)
+- Week 3 starts Monday: Networking — VPC, subnets, route tables, security groups
+
 
 === Day 14 - Cron + Logging ===
 - Log file opened with "a" (append) mode — never overwrites history

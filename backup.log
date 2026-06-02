@@ -1,8 +1,0 @@
-[INFO]  10:21:14 — Checking AWS connection...
-[INFO]  10:21:15 — AWS connection OK
-[INFO]  10:21:15 — Starting backup: backup_2026-05-14_10-21-14
-[INFO]  10:21:15 — Source: /home/ec2-user/cloud-practice
-[INFO]  10:21:15 — Destination: s3://legend-ec2-backups-2026/backup_2026-05-14_10-21-14/
-[INFO]  10:21:16 — Backup completed successfully
-[INFO]  10:21:16 — Verifying backup in S3...
-[INFO]  10:21:17 — Verified: 9 file(s) uploaded to S3
