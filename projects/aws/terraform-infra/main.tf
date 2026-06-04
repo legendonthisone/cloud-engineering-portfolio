@@ -1,10 +1,10 @@
 terraform {
   backend "s3" {
-    bucket         = "legend-tf-state-2026"
-    key            = "day27/terraform.tfstate"
-    region         = "us-east-1"
-    encrypt        = true
-    use_lockfile   = true
+    bucket       = "legend-tf-state-2026"
+    key          = "day27/terraform.tfstate"
+    region       = "us-east-1"
+    encrypt      = true
+    use_lockfile = true
   }
 
   required_providers {
