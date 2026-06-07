@@ -1,31 +1,46 @@
-name: Terraform CI
+name: Terraform
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   validate:
-    name: Validate Terraform
+    name: Validate (no credentials)
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: projects/aws/terraform-infra
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
+      - uses: actions/checkout@v5
+      - uses: hashicorp/setup-terraform@v4
+      - run: terraform fmt -check
+      - run: terraform init -backend=false -input=false
+      - run: terraform validate
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v4
-
-      - name: Terraform Format Check
-        run: terraform fmt -check
-
-      - name: Terraform Init
-        run: terraform init -backend=false -input=false
-
-      - name: Terraform Validate
-        run: terraform validate
+  plan:
+    name: Plan (real AWS via OIDC)
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write    # REQUIRED — without this, no OIDC token is minted
+      contents: read     # to checkout the repo
+    defaults:
+      run:
+        working-directory: projects/aws/terraform-infra
+    steps:
+      - uses: actions/checkout@v5
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::339494983682:role/github-actions-terraform
+          aws-region: us-east-1
+      - name: Who am I?
+        run: aws sts get-caller-identity
+      - uses: hashicorp/setup-terraform@v4
+      - name: Init (real S3 backend)
+        run: terraform init -input=false
+      - name: Plan
+        run: terraform plan -input=false -no-color
