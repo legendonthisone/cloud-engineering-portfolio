@@ -25,8 +25,8 @@ jobs:
     needs: validate
     runs-on: ubuntu-latest
     permissions:
-      id-token: write    # REQUIRED — without this, no OIDC token is minted
-      contents: read     # to checkout the repo
+      id-token: write
+      contents: read
     defaults:
       run:
         working-directory: projects/aws/terraform-infra
@@ -44,3 +44,28 @@ jobs:
         run: terraform init -input=false
       - name: Plan
         run: terraform plan -input=false -no-color
+
+  apply:
+    name: Apply (gated)
+    needs: plan
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      id-token: write
+      contents: read
+    defaults:
+      run:
+        working-directory: projects/aws/terraform-infra
+    steps:
+      - uses: actions/checkout@v5
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: arn:aws:iam::339494983682:role/github-actions-terraform
+          aws-region: us-east-1
+      - uses: hashicorp/setup-terraform@v4
+      - name: Init (real S3 backend)
+        run: terraform init -input=false
+      - name: Apply
+        run: terraform apply -auto-approve -input=false
