@@ -21,3 +21,9 @@ as custom metrics under the Custom/EC2Monitor namespace.
 - Amazon Linux 2023
 - AWS EC2 t2.micro
 - Region: us-east-1
+
+## Lambda
+
+### auto_stop_idle_instances.py
+Detects idle EC2 instances via CloudWatch CPU metrics and stops
+instances tagged AutoStop=true. Code: projects/aws/lambda/auto_stop_idle_instances.py
