@@ -1,3 +1,9 @@
+variable "environment" {
+  description = "Deployment environment label"
+  type        = string
+  default     = "practice"
+}
+
 terraform {
   backend "s3" {
     bucket       = "legend-tf-state-2026"
