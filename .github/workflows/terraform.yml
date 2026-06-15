@@ -13,6 +13,10 @@ on:
       - '.github/workflows/terraform.yml'
   workflow_dispatch:
 
+concurrency:
+  group: terraform-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     name: Validate (no credentials)
@@ -34,6 +38,7 @@ jobs:
     permissions:
       id-token: write
       contents: read
+      pull-requests: write
     defaults:
       run:
         working-directory: projects/aws/terraform-infra
@@ -50,7 +55,27 @@ jobs:
       - name: Init (real S3 backend)
         run: terraform init -input=false
       - name: Plan
+        id: plan
+        continue-on-error: true
         run: terraform plan -input=false -no-color
+      - name: Comment plan on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v9
+        env:
+          PLAN: ${{ steps.plan.outputs.stdout }}
+        with:
+          script: |
+            const plan = process.env.PLAN || "No plan output.";
+            const body = "#### Terraform Plan 📋\n```\n" + plan + "\n```";
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+      - name: Fail if plan errored
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
 
   apply:
     name: Apply (gated)
