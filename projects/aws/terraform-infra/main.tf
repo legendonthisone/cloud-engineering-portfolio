@@ -1,3 +1,12 @@
+data "aws_ami" "drill_broken" {
+  most_recent = true
+  owners      = ["amazon"]
+  filter {
+    name   = "name"
+    values = ["definitely-not-a-real-ami-name-zzz-*"]
+  }
+}
+
 variable "environment" {
   description = "Deployment environment label"
   type        = string
