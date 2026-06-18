@@ -49,13 +49,15 @@ resource "aws_internet_gateway" "main" {
 
 # --- Public Subnet ---
 resource "aws_subnet" "public" {
+  for_each = var.public_subnets
+
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = var.subnet_cidr
-  availability_zone       = var.availability_zone
+  cidr_block              = each.value
+  availability_zone       = each.key
   map_public_ip_on_launch = true
 
   tags = {
-    Name    = "${var.project_name}-public-subnet"
+    Name    = "${var.project_name}-public-${each.key}"
     Project = var.project_name
   }
 }
@@ -77,7 +79,9 @@ resource "aws_route_table" "public" {
 
 # --- Route Table Association ---
 resource "aws_route_table_association" "public" {
-  subnet_id      = aws_subnet.public.id
+  for_each = aws_subnet.public
+
+  subnet_id      = each.value.id
   route_table_id = aws_route_table.public.id
 }
 
@@ -130,7 +134,7 @@ data "aws_ami" "amazon_linux" {
 resource "aws_instance" "web" {
   ami                    = data.aws_ami.amazon_linux.id
   instance_type          = var.instance_type
-  subnet_id              = aws_subnet.public.id
+  subnet_id              = aws_subnet.public["us-east-1a"].id
   vpc_security_group_ids = [aws_security_group.web.id]
 
   user_data = <<-EOF
