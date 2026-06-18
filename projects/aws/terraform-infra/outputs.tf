@@ -3,9 +3,9 @@ output "vpc_id" {
   value       = aws_vpc.main.id
 }
 
-output "subnet_id" {
-  description = "ID of the public subnet"
-  value       = aws_subnet.public.id
+output "subnet_ids" {
+  description = "IDs of the public subnets, keyed by Availability Zone"
+  value       = { for az, subnet in aws_subnet.public : az => subnet.id }
 }
 
 output "security_group_id" {

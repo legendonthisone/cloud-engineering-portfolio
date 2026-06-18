@@ -10,18 +10,6 @@ variable "vpc_cidr" {
   default     = "10.1.0.0/16"
 }
 
-variable "subnet_cidr" {
-  description = "CIDR block for the public subnet"
-  type        = string
-  default     = "10.1.1.0/24"
-}
-
-variable "availability_zone" {
-  description = "AZ for the subnet"
-  type        = string
-  default     = "us-east-1c"
-}
-
 variable "instance_type" {
   description = "EC2 instance type"
   type        = string
@@ -32,4 +20,13 @@ variable "project_name" {
   description = "Name prefix for all resources"
   type        = string
   default     = "legend-tf"
+}
+
+variable "public_subnets" {
+  description = "Public subnets to create. Key = Availability Zone, value = CIDR block."
+  type        = map(string)
+  default = {
+    "us-east-1a" = "10.1.1.0/24"
+    "us-east-1b" = "10.1.2.0/24"
+  }
 }
