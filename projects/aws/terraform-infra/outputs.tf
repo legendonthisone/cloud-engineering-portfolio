@@ -1,16 +1,16 @@
 output "vpc_id" {
   description = "ID of the VPC"
-  value       = aws_vpc.main.id
+  value       = module.network.vpc_id
 }
 
 output "subnet_ids" {
   description = "IDs of the public subnets, keyed by Availability Zone"
-  value       = { for az, subnet in aws_subnet.public : az => subnet.id }
+  value       = module.network.subnet_ids
 }
 
 output "security_group_id" {
   description = "ID of the web security group"
-  value       = aws_security_group.web.id
+  value       = module.network.security_group_id
 }
 
 output "instance_id" {
