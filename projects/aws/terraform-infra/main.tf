@@ -57,7 +57,7 @@ resource "aws_instance" "web" {
     yum install -y nginx
     systemctl start nginx
     systemctl enable nginx
-    echo "<h1>Deployed by Terraform - Legend Day 26</h1>" > /usr/share/nginx/html/index.html
+    echo "<h1>Deployed by Terraform via a modular, multi-AZ pipeline -Legend</h1>" > /usr/share/nginx/html/index.html
   EOF
 
   tags = {
