@@ -7,7 +7,7 @@ variable "environment" {
 terraform {
   backend "s3" {
     bucket       = "legend-tf-state-2026"
-    key          = "day27/terraform.tfstate"
+    key          = "dev/terraform.tfstate"
     region       = "us-east-1"
     encrypt      = true
     use_lockfile = true
@@ -26,7 +26,7 @@ provider "aws" {
 }
 
 module "network" {
-  source = "./modules/network"
+  source = "../../modules/network"
 
   project_name   = var.project_name
   vpc_cidr       = var.vpc_cidr
