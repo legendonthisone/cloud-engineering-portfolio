@@ -15,15 +15,15 @@ output "security_group_id" {
 
 output "instance_id" {
   description = "ID of the EC2 instance"
-  value       = aws_instance.web.id
+  value       = module.compute.instance_id
 }
 
 output "public_ip" {
   description = "Public IP of the EC2 instance"
-  value       = aws_instance.web.public_ip
+  value       = module.compute.public_ip
 }
 
 output "website_url" {
   description = "URL to access the web server"
-  value       = "http://${aws_instance.web.public_ip}"
+  value       = module.compute.website_url
 }
