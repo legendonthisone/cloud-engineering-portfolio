@@ -14,3 +14,6 @@ crash.*.log
 *.tfvars.json
 
 # NOTE: .terraform.lock.hcl is intentionally NOT ignored - it must be committed
+
+# Saved plan files - can contain sensitive resource values, NEVER commit
+*.tfplan
