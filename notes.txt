@@ -161,3 +161,52 @@ Connected to a real server in AWS from my laptop
 
 
 
+
+=== Days 28-60 - See block handoff documents ===
+- notes.txt paused after Day 27. Full detailed record for Days 28-60 lives in
+  the block handoff DOCX files (Day 31-35, 36-40, 41-45, 46-50, 51-55, 56-60).
+- Covered: GitHub push, full CI/CD pipeline (OIDC, gated apply, plan-on-PR,
+  branch protection), IAM hardening + least privilege, secrets (Parameter Store),
+  network/data security, and the full observability + self-healing build
+  (CloudWatch, SNS, catcher Lambda, auto-stop healer, EventBridge).
+
+=== Days 61-65 - Block 13: CloudOps Sentinel capstone part 1 ===
+- Scoped Sentinel; cleaned 5 stray resources (2 billing alarms, 2 topics, 1 Lambda).
+- Chose Option B: bring hand-built loops under Terraform via import.
+- Imported SNS topic high-cpu-alerts into environments/global (plan clean).
+- Recovered catcher source from AWS (was console-only), committed to repo,
+  restructured lambda/ into per-function subfolders.
+- Imported catcher execution role; swapped console-clone policy for AWS-managed
+  AWSLambdaBasicExecutionRole (Option 3: import faithfully, then improve).
+- Catcher FUNCTION blocked: runs python3.14, pinned provider (v5.100.0) rejects it.
+  Documented as provider-blocked; live function untouched.
+- Key realization: import gives "adopted into Terraform", not "deployed entirely
+  with Terraform" (the LinkedIn claim). DECISION: code-first rebuild in Block 14.
+  python3.13 clears the provider wall, so no provider upgrade needed.
+- Alert-loop work on branch multi-env-split, PR to main still pending.
+
+=== Banked for later ===
+- Block 14: tear down + rebuild Sentinel entirely from Terraform (the capstone part 2).
+- Rebuild one clean billing tripwire (single alarm, sensible name).
+- Import healer role + EventBridge rule (deferred; same pattern as catcher role).
+- LinkedIn milestone post: HOLD until Block 14, when "deployed entirely with
+  Terraform" is literally true.
+
+=== Days 66-70 - Block 14: CloudOps Sentinel capstone part 2 (code-first rebuild) ===
+- The rebuild happened. Heal loop torn down and rebuilt entirely as Terraform code, no import.
+- Day 67: healer IAM role built code-first (healer-lambda-role). Trust = lambda only.
+  Permissions in one auditable document: DescribeInstances open, StopInstances gated by
+  AutoStop=true tag condition, logs scoped to account+region. Open read, gated write.
+- Day 68: healer function rebuilt code-first. Hit a 409 name conflict (hand-built function
+  still owned the name) - teardown must precede code-first create. Verified live code
+  matched local source, deleted the hand-built function, applied. New function wears
+  healer-lambda-role (proof it is the rebuilt one, not the old auto-stop-lambda-role).
+- CORRECTION: the live healer was already python3.13, not python3.14. The 3.14 provider
+  wall was the CATCHER function's story. Healer runtime note in Block 13 was stale.
+- Day 69: EventBridge rule built code-first (hourly-idle-check, rate 1 hour) + target +
+  lambda_permission (inbound: only this rule may invoke, mirror of the outbound role).
+  Removed a stale hand-built target so the rule has exactly one Terraform-owned target.
+- Day 70: committed both loops. catcher.tf was untracked since the Day 64 import (import
+  and commit are separate acts) - committed as its own gap-fix. Heal loop committed as
+  one unit. Added *.zip to gitignore (Lambda build artifacts, regenerated every apply).
+- Heal loop is now complete, code-first, verified live, cruft removed.
