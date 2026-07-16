@@ -32,6 +32,12 @@ data "aws_iam_policy_document" "healer_permissions" {
   }
 
   statement {
+    sid       = "ReadCPUMetrics"
+    actions   = ["cloudwatch:GetMetricStatistics"]
+    resources = ["*"]
+  }
+
+  statement {
     sid = "WriteLogs"
     actions = [
       "logs:CreateLogGroup",
