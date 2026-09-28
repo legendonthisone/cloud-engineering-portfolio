@@ -50,7 +50,7 @@ Full write-up, including how to demo it: [CloudOps-Sentinel.md](CloudOps-Sentine
 
 ## CI/CD pipeline
 
-`.github/workflows/terraform.yml` runs only when files under `projects/aws/terraform-infra/` or the workflow itself change.
+`.github/workflows/terraform.yml` runs validate and plan on every pull request, so the required checks always report. On pushes to `main` it runs only when files under `projects/aws/terraform-infra/` or the workflow itself change, so a docs commit never queues an apply.
 
 1. **Validate:** `terraform fmt -check`, `init` with no backend, and `validate`. No AWS credentials needed.
 2. **Plan:** assumes an AWS role through OIDC, initialises the S3 backend, runs `terraform plan` and posts the plan to the pull request.
