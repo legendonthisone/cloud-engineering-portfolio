@@ -95,4 +95,4 @@ Source: github.com/legendonthisone/cloud-engineering-portfolio
 
 ## Credentials
 
-Delivery is Continuous Delivery with a manual approval gate, not automated deployment. Certification status: AWS SAA-C03 in progress, HashiCorp Terraform Associate planned. No certification is claimed that is not earned.
+Delivery is Continuous Delivery with a manual approval gate, not automated deployment. Certification status: AWS Certified Solutions Architect, Associate (SAA-C03), earned August 2026. HashiCorp Terraform Associate planned. No certification is claimed that is not earned.
