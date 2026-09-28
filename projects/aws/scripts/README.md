@@ -1,4 +1,4 @@
-# Cloud Engineering Portfolio — Bash Scripts
+# Operations Scripts
 
 Automation scripts written during a 90-day cloud engineering programme.
 

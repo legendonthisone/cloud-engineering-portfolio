@@ -1,55 +1,52 @@
-# Terraform — Real AWS Infrastructure Deployment
+# Terraform: Network and Compute Stack
 
-Deploys a complete, production-pattern AWS network and web server entirely
-in code, with remote state stored in S3 using native locking.
+A modular AWS network and web server, deployed per environment, with remote state in S3 and account-level resources kept in their own state.
 
-## What This Builds
+## Layout
 
-| Resource | Description |
-|----------|-------------|
-| VPC | Isolated network (10.1.0.0/16) |
-| Internet Gateway | Public internet access for the VPC |
-| Public Subnet | 10.1.1.0/24, auto-assigns public IPs |
-| Route Table + Association | Routes 0.0.0.0/0 to the IGW |
-| Security Group | Allows inbound HTTP (80) and HTTPS (443) |
-| EC2 Instance | Amazon Linux 2023, t2.micro, runs nginx via user_data |
+| Path | What it holds |
+|---|---|
+| `modules/network/` | VPC with DNS enabled, internet gateway, public subnets, public route table and associations, web security group |
+| `modules/compute/` | EC2 web server on the latest Amazon Linux 2023 AMI, nginx installed through `user_data` |
+| `environments/dev/`, `environments/prod/` | Each sets its own state key and calls both modules. The root passes the network outputs (subnet ID, security group ID) into compute |
+| `environments/global/` | Account-level resources in a separate state: the GitHub Actions OIDC role and CloudOps Sentinel |
 
-All seven resources are created in dependency order automatically — Terraform
-reads resource references (e.g. vpc_id = aws_vpc.main.id) to build its
-dependency graph.
+## What the modules do
 
-## Remote State Backend
+- **Subnets from a map.** `public_subnets` maps an Availability Zone to a CIDR block, and `for_each` builds one subnet per entry. Two AZs by default (`10.1.1.0/24`, `10.1.2.0/24`), and adding a third is one line in a variable.
+- **Security group rules from data.** Ingress rules come from a list variable through a `dynamic` block (HTTP and HTTPS by default), so rules change without touching the module.
+- **No hard-coded AMI.** A data source looks up the newest Amazon Linux 2023 image at plan time.
+- **Consistent tags.** Every resource carries `Project`, and the instance also carries `Env`.
 
-State is stored remotely in S3 rather than on local disk:
+## Remote state
 
-- Bucket: versioned, AES256-encrypted, public access blocked
-- Locking: native S3 locking via use_lockfile = true (no DynamoDB required —
-  that approach is deprecated as of Terraform 1.11+)
-- Lock file: a .tflock object is created at the start of each operation and
-  deleted automatically when it completes
+- One S3 bucket, a separate key per environment (`dev/`, `prod/`, `global/`).
+- Versioned, encrypted and blocked from public access.
+- Native S3 locking with `use_lockfile = true`, so no DynamoDB lock table is needed.
 
-## File Structure
+**Why global has its own state:** a `terraform destroy` in dev or prod can never touch the IAM role that both environments, and the pipeline, depend on.
 
-| File | Purpose | Committed? |
-|------|---------|-----------|
-| main.tf | Provider, backend, all resources, AMI data source | Yes |
-| variables.tf | Input variable declarations | Yes |
-| outputs.tf | Output values (IPs, IDs, URL) | Yes |
-| .terraform.lock.hcl | Provider version lock | Yes |
-| terraform.tfstate | Current state — sensitive | Never (gitignored) |
-| .terraform/ | Downloaded provider plugins | Never (gitignored) |
+## The pipeline role (`environments/global/iam.tf`)
+
+- **Trust:** only GitHub's OIDC provider, only this repository, and only tokens minted for AWS STS.
+- **Permissions:** EC2 reads (`Describe*`) are open because `terraform plan` needs them. EC2 writes are listed one by one and region-locked to us-east-1, so leaked credentials cannot build or destroy anything in another region.
 
 ## Usage
 
-    terraform init       # download providers, configure S3 backend
-    terraform plan       # preview the 7 resources
-    terraform apply      # build the infrastructure
-    terraform destroy    # tear it all down
+```
+cd environments/dev
+terraform init      # configure the S3 backend
+terraform plan      # preview
+terraform apply     # build
+terraform destroy   # tear down
+```
 
-## Key Concepts Demonstrated
+Changes to dev go through the GitHub Actions pipeline: plan on every pull request, apply after merge behind a manual approval gate. The global state is applied directly.
 
-- Infrastructure as Code: a full network stack defined declaratively
-- Implicit dependency resolution and parallel resource creation
-- Dynamic AMI lookup via a data source instead of a hardcoded ID
-- EC2 bootstrapping with user_data
-- Remote state with native S3 locking — the current production-standard pattern
+## Concepts demonstrated
+
+- Module composition with inputs and outputs
+- `for_each` over a map and `dynamic` blocks
+- Data source lookups instead of hard-coded IDs
+- Per-environment state isolation with native locking
+- A least-privilege CI role federated through OIDC

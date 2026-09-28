@@ -6,11 +6,10 @@ on:
     paths:
       - 'projects/aws/terraform-infra/**'
       - '.github/workflows/terraform.yml'
+  # No paths filter on PRs: validate and plan are read-only, and the
+  # required checks must report on every PR, including docs-only ones.
   pull_request:
     branches: [main]
-    paths:
-      - 'projects/aws/terraform-infra/**'
-      - '.github/workflows/terraform.yml'
   workflow_dispatch:
 
 concurrency:

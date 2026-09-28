@@ -1,11 +1,11 @@
-# Python AWS Automation — Cloud Engineering Portfolio
+# Python AWS Automation
 
 Scripts written during Week 2 of a 90-day cloud engineering training programme.
 
 ## Scripts
 
 ### basics.py
-Python fundamentals practice — variables, f-strings, lists, dictionaries,
+Python fundamentals practice: variables, f-strings, lists, dictionaries,
 loops, and functions. Includes a reusable threshold checker modelled after
 real monitoring logic.
 
